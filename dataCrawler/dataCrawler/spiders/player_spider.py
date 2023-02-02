@@ -151,7 +151,7 @@ class PlayerSpider(scrapy.Spider):
         
         offset = 0
 
-        if selector.xpath(f'./p[{offset}]/strong/text()').extract_first() == 'Position:':
+        if selector.xpath(f'./p/strong/text()').extract_first() == 'Position:':
             fullname = selector.xpath(f'./p[{offset}]/strong/text()').extract_first()
             offset += 1
         else:
@@ -254,6 +254,7 @@ class PlayerSpider(scrapy.Spider):
 
         all_data = []
         for row in rows:
+            check = []
             cells = row.xpath('.//th|.//td')
             data = {}
             for idx, cell in enumerate(cells):
@@ -263,8 +264,14 @@ class PlayerSpider(scrapy.Spider):
                 if cell.xpath('.//a').extract_first():
                     # text = cell.xpath('.//a/text()').extract_first()
                     href = cell.xpath('.//a/@href').extract_first()
-                    data[headers[idx]] = href
+                    # print('check',headers[idx])
+                    if headers[idx] not in check:
+                        data[headers[idx]] = href
+                        check.append(headers[idx])
                 else:
-                    data[headers[idx]] = cell.xpath('.//text()').extract_first()     
+                    # print('check', headers[idx])
+                    if headers[idx] not in check:
+                        data[headers[idx]] = cell.xpath('.//text()').extract_first()
+                        check.append(headers[idx])
             all_data.append(data)
         return all_data
